@@ -1,0 +1,11 @@
+# Data and Outputs
+2024/
+output/
+tmp/
+*.parquet
+*.csv
+
+# Python
+__pycache__/
+venv/
+.env

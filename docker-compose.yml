@@ -1,0 +1,68 @@
+# ══════════════════════════════════════════════════════════════════════
+# SURGE PRICING ENGINE — Docker Compose
+# ══════════════════════════════════════════════════════════════════════
+# Simulates production environment with 8GB RAM hard limit.
+#
+# Usage:
+#   docker-compose up --build              # Full pipeline
+#   docker-compose run surge --only-etl    # ETL only
+#   docker-compose run surge --only-model  # Model only
+#   docker-compose run tests               # Run unit tests
+# ══════════════════════════════════════════════════════════════════════
+
+services:
+  # ── Full Pipeline ──
+  surge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: surge-pricing-engine
+    deploy:
+      resources:
+        limits:
+          memory: 8g        # ← Hard 8GB RAM limit (production constraint)
+          cpus: "4"
+        reservations:
+          memory: 4g        # Guaranteed minimum
+          cpus: "2"
+    volumes:
+      - ./2024:/app/2024:ro                          # Raw data (read-only)
+      - ./taxi+_zone_lookup.csv:/app/taxi+_zone_lookup.csv:ro  # Zone lookup
+      - ./output:/app/output                         # Pipeline output
+      - surge-tmp:/tmp/spark_spill                   # Spark spill (volume)
+    environment:
+      - SPARK_DRIVER_MEMORY=4g
+      - SPARK_LOCAL_DIR=/tmp/spark_spill
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+    restart: "no"
+
+  # ── Test Runner ──
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: surge-pricing-tests
+    deploy:
+      resources:
+        limits:
+          memory: 4g        # Tests need less memory
+          cpus: "2"
+    entrypoint: >
+      python -m pytest tests/
+      -v
+      --tb=short
+      --cov=.
+      --cov-report=term-missing
+      --cov-report=html:output/reports/coverage
+      -x
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: "no"
+
+volumes:
+  surge-tmp:
+    driver: local
