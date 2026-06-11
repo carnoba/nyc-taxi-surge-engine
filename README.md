@@ -1,118 +1,70 @@
-# 🚕 NYC TLC Surge Pricing Engine
+# 🚖 NYC Taxi Surge Engine: High-Concurrency Predictive Modeling
 
-![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)
-![PySpark](https://img.shields.io/badge/PySpark-3.5-orange?style=for-the-badge&logo=apachespark)
-![XGBoost](https://img.shields.io/badge/XGBoost-2.0-green?style=for-the-badge)
-![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit)
+[![Apache Spark](https://img.shields.io/badge/Apache-Spark-E25A1C?logo=apachespark&logoColor=white)](https://spark.apache.org/)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)](https://www.python.org/)
+[![Gradient Boosting](https://img.shields.io/badge/Model-XGBoost/LightGBM-orange)](https://github.com/carnoba)
+[![Data Format](https://img.shields.io/badge/Data-Parquet-003B57)](https://parquet.apache.org/)
 
-A production-grade, memory-safe machine learning pipeline designed to predict real-time surge multipliers for the New York City taxi fleet. Built to handle 100M+ rows of TLC data on resource-constrained hardware (8GB RAM).
+**NYC Taxi Surge Engine** is a professional-grade Big Data and Machine Learning system architected to solve the dynamic pricing challenges in urban mobility. This engine handles the massive NYC TLC dataset, processing millions of rows via Spark to predict real-time surge multipliers based on hyper-local demand/supply imbalances.
 
----
+## 🚀 The Data Science Lifecycle
 
-## 🚀 Project Overview
+This project demonstrates a complete engineering lifecycle for high-volume data:
+1. **Ingestion**: Raw Parquet data ingestion using Apache Spark for distributed processing.
+2. **ETL & Engineering**: Advanced feature engineering including rolling window demand metrics and geospatial binning.
+3. **Predictive Modeling**: High-precision gradient boosting models trained to estimate surge pricing with minimal latency.
+4. **Interactive Simulation**: A real-time dashboard to visualize and interact with predictive surge scenarios.
 
-This engine implements an end-to-end data science lifecycle: from raw Parquet ingestion via Spark to an interactive simulation dashboard. It addresses high-concurrency demand/supply imbalances by predicting surge multipliers using advanced gradient boosting.
+## ✨ Premium Features
 
-### **Key Technical Highlights:**
+- **Scalable Spark Pipeline**: Efficiently processes multi-gigabyte Parquet files without memory bottlenecks.
+- **Geospatial Intelligence**: Analyzes demand patterns across NYC's complex grid to identify "Saturation Zones."
+- **Dynamic Pricing Algorithm**: Implements an asymmetric loss function to prioritize pricing accuracy during peak demand surges.
+- **Visual Analytics Hub**: Interactive graphs and maps showcasing historical vs. predicted surge trends.
 
-- **The "8GB Shield"**: Comprehensive memory management strategies (off-heap memory, low shuffle partitions, column pruning) to run massive Spark jobs on 8GB RAM.
-- **Geospatial Intelligence**: Uses **H3 indexing** (Resolution 8) for precise city-block level demand analysis.
-- **Asymmetric Loss Function**: Custom-engineered XGBoost loss that penalizes under-estimation 2x more than over-estimation, ensuring business profitability.
-- **Windows Native Bypass**: Custom NativeIO mocking handles the notorious `java.lang.UnsatisfiedLinkError` common in Python 3.13 + Spark 3.x on Windows.
+## 🛠 Tech Stack
 
----
+- **Data Engineering**: Apache Spark, PySpark, Pandas
+- **Machine Learning**: XGBoost, Scikit-learn
+- **Visualization**: Streamlit / Plotly
+- **Infrastructure**: Parquet Columnar Storage
 
-## 🛠️ Tech Stack
+## 📁 Repository Structure
 
-- **Data Processing**: Apache Spark (PySpark), PyArrow
-- **Feature Engineering**: H3-py, Pandas
-- **Machine Learning**: XGBoost (Histogram-based method)
-- **Dashboard**: Streamlit, Plotly
-- **Infrastructure**: Python 3.13, Hadoop (Winutils)
-
----
-
-## 📁 System Architecture
-
-```mermaid
-graph TD
-    A[Raw 2024 Parquet] --> B[ETL Pipeline]
-    B --> C[Zone Lookup Join]
-    C --> D[Cleaned Partitions]
-    D --> E[Feature Engineering]
-    E --> F[H3 Geospatial Features]
-    F --> G[Temporal & Weather Features]
-    G --> H[Model Training]
-    H --> I[XGBoost Surge Model]
-    I --> J[Streamlit Dashboard]
+```
+├── spark_pipeline/       # Spark ETL and feature engineering logic
+├── models/               # Trained surge prediction models
+├── dashboard/            # Interactive Streamlit application
+├── data/                 # Sample Parquet datasets (schema only)
+└── README.md             # Documentation
 ```
 
----
+## ⚙️ How to Run
 
-## ⚙️ Installation & Setup
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/carnoba/nyc-taxi-surge-engine.git
+   ```
+2. **Environment Setup**:
+   Ensure you have a Java environment for Spark and install Python requirements:
+   ```bash
+   pip install pyspark xgboost streamlit pandas
+   ```
+3. **Trigger the Pipeline**:
+   ```bash
+   python spark_pipeline/orchestrate.py
+   ```
 
-### 1. Prerequisites
+## 🤝 Contributing
 
-- **Java 8 or 11** (Required for Spark)
-- **Hadoop Binaries**: Included in the project under `hadoop_fix/bin/winutils.exe` (Pre-configured for Windows).
+We welcome optimizations in the Spark execution plan or improvements to the surge pricing model. Feel free to fork and open a PR!
 
-### 2. Clone & Install
+## ⭐ Star the Project!
 
-```bash
-git clone https://github.com/yourusername/nyc-surge-engine.git
-cd nyc-surge-engine
-pip install -r requirements.txt
-```
-
----
-
-## 🚦 Usage
-
-### **1. Run the Full Pipeline**
-
-Orchestrate the ETL, Feature Engineering, and Training stages with a single command:
-
-```bash
-python run_pipeline.py
-```
-
-_Note: The script automatically handles Windows environment variables and NativeIO bypass._
-
-### **2. Launch the Dashboard**
-
-Simulate real-time surge scenarios using the interactive UI:
-
-```bash
-streamlit run app.py
-```
+If this engine helps your understanding of Big Data or Surge Pricing, please give it a **Star**! 🌟
 
 ---
+**Engineered by [Carnoba](https://github.com/carnoba)**
 
-## 🧠 Model Performance
-
-| Metric             | Target             | Result             |
-| :----------------- | :----------------- | :----------------- |
-| **Data Volume**    | 1 Month (Jan 2024) | ~3M Rows           |
-| **Training Speed** | < 10 Minutes       | (Hist Method)      |
-| **Surge Range**    | 1.0x - 5.0x        | Predicted          |
-| **Logic**          | Asymmetric Penalty | 2.0x for Under-est |
-
----
-
-## 🛡️ Memory Safety Features
-
-- **Spark Shuffle Partitions**: Set to `10` for low-RAM overhead.
-- **Off-Heap Execution**: 2GB allocated to prevent JVM Heap crashes.
-- **Predicate Pushdown**: Partitioned writes by `pickup_date` and `hour` for efficient downstream reads.
-- **Custom GC**: Manual garbage collection triggers between pipeline phases.
-
----
-
-## 👤 Author
-
-**Data Engineering Team**
-_Specializing in high-performance ML systems on constrained hardware._
-
----
-
-_This project was developed as part of a technical surge pricing case study._
+#Tags
+#DataEngineering #ApacheSpark #NYC #MachineLearning #SurgePricing #Python #BigData #PySpark #PredictiveModeling #UrbanMobility
